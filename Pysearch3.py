@@ -6,11 +6,9 @@ import os
 import argparse
 import sys
 
-def Main()
+def Main():
 	# Checks for a valid version of python and quites if not found
-	if(sys.version_info < 3):
-		print("Python 3 required, please check github/Dozekar for pysearch to run in python 2")
-		quit()
+	checkversion()
 	
 	# Sets up the argument parsing.  See documentation for argparse for more details
 	parser = argparse.ArgumentParser()
@@ -24,17 +22,35 @@ def Main()
 	# Initializes argments into args object
 	args = parser.parse_args()
 	
-	# The main control loop for the program. It cycles around os.walk iteration
-	if os.path.exists(args.target) and (os.path.exists(args.outputFile) or args.printFlag):
-		walk_record = os.walk(args.target)
-		for root, dirs, files in walk_record:
-			parse_source(root, 'dir', args)
-			for a_file in files
-				parse_source(a_file, 'file', args)
-
-		
-		
 	
+	if os.path.exists(args.target) and (os.path.exists(args.outputFile) or args.printFlag):
+		if not args.printFlag:
+			try:
+				outputFileHandler = open(outputFile)
+			except IOError as err:
+				print('IO Error: {0}.  Quitting...'.format err)
+				outputFileHandler.close()
+				quit()
+			
+			# The main control loop for the program. It cycles around os.walk iteration
+			walkRecord = os.walk(args.target)
+			for root, dirs, files in walkRecord:
+				parseSource(root, 'dir', args, outputFileHandler)
+				for a_file in files:
+					parseSource(a_file, 'file', args, outputFileHandler)
+		outputFileHandler.close()
+	print('Operation complete.')
+
+# Verison check.  Notifies and quits if not verison 3 or if version 3 is below 3.3
+def checkVersion():
+	versionMain, versionMinor, verisonMicro, releaseLevel, serial = sys.version_info
+	if not (versionMain == 3 and versionMinor > 3):
+		print ('Python {0}.{1} is not a supported version', verisonMain, versionMinor)
+		quit()
+	
+def parseSource(inputObject, inputObjectType, args, outputFileHandler):
+		
+		
 	
 if __name__= '__main__':
 	Main()
